@@ -252,12 +252,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .el-breadcrumb {
-     margin-bottom: 10px;
-     border-bottom: 1px solid #ccc;
-     height: 40px;
-     line-height: 40px;
-  }
   .input-with-select {
     width: 300px;
     margin-bottom: 10px;
