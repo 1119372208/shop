@@ -14,6 +14,7 @@
     <el-container>
       <el-aside width="200px">
         <el-menu
+          router
           unique-opened
           background-color="#545c64"
           text-color="#fff"
@@ -26,7 +27,7 @@
               <span>用户管理</span>
             </template>
 
-            <el-menu-item index="1-1">
+            <el-menu-item index="users">
               <i class="el-icon-menu"></i>
               <span slot="title">用户列表</span>
             </el-menu-item>
@@ -50,7 +51,9 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -58,21 +61,35 @@
 <script>
 export default {
   methods: {
-    logout () {
-      this.$confirm('确定要退出吗', '温馨提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          localStorage.removeItem('token')
-          this.$message.success('退出成功')
-          this.$router.push('/login')
+    async logout () {
+      // this.$confirm('确定要退出吗', '温馨提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // })
+      //   .then(() => {
+      //     localStorage.removeItem('token')
+      //     this.$message.success('退出成功')
+      //     this.$router.push('/login')
+      //   })
+      //   .catch(e => {
+      //     console.log(e)
+      //     this.$message.error('取消退出')
+      //   })
+
+      try {
+        await this.$confirm('确定要退出吗', '温馨提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(e => {
-          console.log(e)
-          this.$message.error('取消退出')
-        })
+        localStorage.removeItem('token')
+        this.$message.success('退出成功')
+        this.$router.push('/login')
+      } catch (e) {
+        console.log(e)
+        this.$message.error('取消退出')
+      }
     }
   }
 }

@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 export default {
   data () {
     return {
@@ -80,9 +80,9 @@ export default {
       //     })
       // })
       await this.$refs.form.validate()
-      const res = await axios.post('http://localhost:8888/api/private/v1/login', this.form)
-      console.log(res)
-      const { meta, data } = res.data
+      const { data, meta } = await this.$axios.post('login', this.form)
+      // console.log(res)
+      // const { meta, data } = res.data
       // console.log(data.token)
       if (meta.status === 200) {
         this.$message({
