@@ -16,39 +16,24 @@
         <el-menu
           router
           unique-opened
+          :default-active="defaultActive"
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b"
         >
-          <el-submenu index="1">
+          <el-submenu v-for="item in menuList" :index="item.path" :key="item.id">
             <!-- 标题 -->
             <template v-slot:title>
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{item.authName}}</span>
             </template>
 
-            <el-menu-item index="users">
+            <el-menu-item v-for="item in item.children" :key="item.id" :index="item.path">
               <i class="el-icon-menu"></i>
-              <span slot="title">用户列表</span>
+              <span slot="title">{{item.authName}}</span>
             </el-menu-item>
           </el-submenu>
 
-          <el-submenu index="2">
-            <!-- 标题 -->
-            <template v-slot:title>
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-
-            <el-menu-item index="roles">
-              <i class="el-icon-menu"></i>
-              <span slot="title">角色列表</span>
-            </el-menu-item>
-            <el-menu-item index="rights">
-              <i class="el-icon-menu"></i>
-              <span slot="title">权限列表</span>
-            </el-menu-item>
-          </el-submenu>
         </el-menu>
       </el-aside>
       <el-main>
@@ -60,27 +45,24 @@
 
 <script>
 export default {
+  data () {
+    return {
+      menuList: []
+    }
+  },
+  async created () {
+    const { meta, data } = await this.$axios.get('menus')
+    if (meta.status === 200) {
+      this.menuList = data
+    } else {
+      this.$message.error(meta.msg)
+    }
+    console.log(data)
+  },
   methods: {
     async logout () {
-      // this.$confirm('确定要退出吗', '温馨提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // })
-      //   .then(() => {
-      //     localStorage.removeItem('token')
-      //     this.$message.success('退出成功')
-      //     this.$router.push('/login')
-      //   })
-      //   .catch(e => {
-      //     console.log(e)
-      //     this.$message.error('取消退出')
-      //   })
-
       try {
         await this.$confirm('确定要退出吗', '温馨提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
           type: 'warning'
         })
         localStorage.removeItem('token')
@@ -90,6 +72,12 @@ export default {
         console.log(e)
         this.$message.error('取消退出')
       }
+    }
+  },
+  computed: {
+    defaultActive () {
+      // console.log(this.$route)
+      return this.$route.path.slice(1)
     }
   }
 }
