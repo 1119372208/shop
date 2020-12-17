@@ -10,19 +10,36 @@
     </el-input>
     <el-button @click="addUserDialog" class="addBtn" plain type="success">添加用户</el-button>
     <el-table :data="userList" style="width: 100%">
-      <el-table-column prop="username" label="姓名" width="180"></el-table-column>
-      <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
+      <el-table-column prop="username" label="姓名"></el-table-column>
+      <el-table-column prop="email" label="邮箱"></el-table-column>
       <el-table-column prop="mobile" label="电话"></el-table-column>
       <el-table-column label="用户状态">
         <template v-slot:default="obj">
-          <el-switch @change="changeState(obj.row)" v-model="obj.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-switch
+            @change="changeState(obj.row)"
+            v-model="obj.row.mg_state"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作">
         <template v-slot:default="obj">
-          <el-button @click="editUserDialog(obj.row)" plain size="small" type="primary" icon="el-icon-edit"></el-button>
-          <el-button @click="delUser(obj.row.id)" plain size="small" type="danger" icon="el-icon-delete"></el-button>
-          <el-button plain size="small" type="success" icon="el-icon-check">分配角色</el-button>
+          <el-button
+            @click="editUserDialog(obj.row)"
+            plain
+            size="small"
+            type="primary"
+            icon="el-icon-edit"
+          ></el-button>
+          <el-button
+            @click="delUser(obj.row.id)"
+            plain
+            size="small"
+            type="danger"
+            icon="el-icon-delete"
+          ></el-button>
+          <el-button @click="assignRoleDialog(obj.row)" plain size="small" type="success" icon="el-icon-check">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -33,13 +50,9 @@
       :page-sizes="[2, 4, 6, 8, 10]"
       :page-size="pagesize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
-    </el-pagination>
-    <el-dialog
-      @close="closeDialog"
-      title="添加用户"
-      :visible.sync="addDialog"
-      width="40%">
+      :total="total"
+    ></el-pagination>
+    <el-dialog @close="closeDialog" title="添加用户" :visible.sync="addDialog" width="40%">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username"></el-input>
@@ -60,10 +73,7 @@
       </span>
     </el-dialog>
     <!-- 修改对话框 -->
-     <el-dialog
-      title="修改用户"
-      :visible.sync="editDialog"
-      width="40%">
+    <el-dialog title="修改用户" :visible.sync="editDialog" width="40%">
       <el-form ref="editForm" :model="editForm" :rules="rules" label-width="80px">
         <el-form-item label="用户名">
           <el-tag type="info">{{editForm.username}}</el-tag>
@@ -78,6 +88,28 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialog = false">取 消</el-button>
         <el-button @click="editUser" type="primary">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="分配角色" :visible.sync="assignDialog" width="40%">
+      <el-form :model="assignForm" label-width="80px">
+         <el-form-item label="用户名">
+          <el-tag type="info">{{assignForm.username}}</el-tag>
+        </el-form-item>
+        <el-form-item label="角色列表">
+          <el-select v-model="assignForm.rid" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.roleName"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="assignDialog = false">取 消</el-button>
+        <el-button @click="assignRole" type="primary">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -103,18 +135,44 @@ export default {
       editDialog: false,
       rules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: ['blur', 'change'] },
-          { min: 3, max: 6, message: '长度在3到6个字符', trigger: ['blur', 'change'] }
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: ['blur', 'change']
+          },
+          {
+            min: 3,
+            max: 6,
+            message: '长度在3到6个字符',
+            trigger: ['blur', 'change']
+          }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: ['blur', 'change'] },
-          { min: 6, max: 12, message: '长度在6到12个字符', trigger: ['blur', 'change'] }
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: ['blur', 'change']
+          },
+          {
+            min: 6,
+            max: 12,
+            message: '长度在6到12个字符',
+            trigger: ['blur', 'change']
+          }
         ],
         email: [
-          { type: 'email', message: '请输入正确邮箱', trigger: ['blur', 'change'] }
+          {
+            type: 'email',
+            message: '请输入正确邮箱',
+            trigger: ['blur', 'change']
+          }
         ],
         mobile: [
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确手机号', trigger: ['blur', 'change'] }
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请输入正确手机号',
+            trigger: ['blur', 'change']
+          }
         ]
       },
       editForm: {
@@ -122,7 +180,15 @@ export default {
         username: '',
         email: '',
         mobile: ''
-      }
+      },
+      assignDialog: false,
+      assignForm: {
+        username: '',
+        id: '',
+        rid: ''
+      },
+      options: []
+
     }
   },
   created () {
@@ -130,16 +196,13 @@ export default {
   },
   methods: {
     async getUserList () {
-      const { data, meta } = await this.$axios.get(
-        'users',
-        {
-          params: {
-            query: this.query,
-            pagenum: this.pagenum,
-            pagesize: this.pagesize
-          }
+      const { data, meta } = await this.$axios.get('users', {
+        params: {
+          query: this.query,
+          pagenum: this.pagenum,
+          pagesize: this.pagesize
         }
-      )
+      })
       if (meta.status === 200) {
         this.userList = data.users
         this.total = data.total
@@ -189,7 +252,9 @@ export default {
     async changeState (row) {
       // console.log(row)
       console.log(row.id, row.mg_state)
-      const { meta } = await this.$axios.put(`users/${row.id}/state/${row.mg_state}`)
+      const { meta } = await this.$axios.put(
+        `users/${row.id}/state/${row.mg_state}`
+      )
       // console.log(res)
       if (meta.status === 200) {
         this.$message.success(meta.msg)
@@ -204,8 +269,8 @@ export default {
       console.log(12)
       try {
         await this.$refs.form.validate()
-        const { data, meta } = await this.$axios.post('users', this.form)
-        console.log(data)
+        const { meta } = await this.$axios.post('users', this.form)
+        // console.log(data)
         if (meta.status === 201) {
           this.$message.success(meta.msg)
           this.addDialog = false
@@ -234,7 +299,10 @@ export default {
       // console.log('哈哈')
       try {
         await this.$refs.editForm.validate()
-        const { meta } = await this.$axios.put(`users/${this.editForm.id}`, this.editForm)
+        const { meta } = await this.$axios.put(
+          `users/${this.editForm.id}`,
+          this.editForm
+        )
         // console.log(res)
         if (meta.status === 200) {
           this.$message.success(meta.msg)
@@ -246,17 +314,49 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    async assignRoleDialog (row) {
+      this.assignDialog = true
+      // console.log(row)
+      this.assignForm.username = row.username
+      this.assignForm.id = row.id
+      const res = await this.$axios.get(`users/${this.assignForm.id}`)
+      console.log(res)
+      this.assignForm.rid = res.data.rid === -1 ? '' : res.data.rid
+      const { meta, data } = await this.$axios.get('roles')
+      // console.log(data)
+      if (meta.status === 200) {
+        this.options = data
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    async assignRole () {
+      const { id, rid } = this.assignForm
+      if (rid === '') {
+        this.$message.error('请选择角色名称')
+        return
+      }
+      const { meta } = await this.$axios.put(`users/${id}/role`, { rid })
+      // console.log(res)
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+        this.assignDialog = false
+        this.getUserList()
+      } else {
+        this.$message.error(meta.msg)
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .input-with-select {
-    width: 300px;
-    margin-bottom: 10px;
-  }
-  .addBtn {
-    margin: 0 20px;
-  }
+.input-with-select {
+  width: 300px;
+  margin-bottom: 10px;
+}
+.addBtn {
+  margin: 0 20px;
+}
 </style>
