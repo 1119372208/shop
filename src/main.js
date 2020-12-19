@@ -4,6 +4,15 @@ import router from './router/index'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
+import moment from 'moment'
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
+Vue.use(VueQuillEditor /* { default global options } */)
+
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
@@ -30,7 +39,12 @@ axios.interceptors.response.use(
   function (response) {
     // 对响应数据做点什么
     response = response.data
-    // console.log(response)
+    if (response.meta.status === 401) {
+      localStorage.removeItem('token')
+      router.push('/login')
+      // this.$message.error(response.meta.msg)
+    }
+    console.log(response)
     return response
   },
   function (error) {
@@ -38,6 +52,9 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+Vue.filter('time', function (value) {
+  return moment(value * 1000).format('YYYY-MM-DD HH:mm:ss')
+})
 
 new Vue({
   router,

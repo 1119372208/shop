@@ -57,7 +57,7 @@ export default {
     } else {
       this.$message.error(meta.msg)
     }
-    console.log(data)
+    // console.log(data)
   },
   methods: {
     async logout () {
@@ -77,7 +77,7 @@ export default {
   computed: {
     defaultActive () {
       // console.log(this.$route)
-      return this.$route.path.slice(1)
+      return this.$route.path.slice(1).split('-')[0]
     }
   }
 }
